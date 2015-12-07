@@ -13,19 +13,16 @@ A small on demand image resizing service written in Go.
   go get -u gopkg.in/h2non/bimg.v0
   ```
 
-1. Download the project
+1. Download and install thumbgo
 
   ```
   go get github.com/servomac/thumbgo
-  ```
-2. Build it
-
-  ```
   cd $GOPATH/src/github.com/servomac/thumbgo
-  go build
+  go install
   ```
+
 3. Run it
-  
+
   ```
   thumbgo
   ```
