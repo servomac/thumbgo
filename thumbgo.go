@@ -2,7 +2,10 @@
 package main
 
 import (
+    "encoding/json"
+    "flag"
     "fmt"
+    "io/ioutil"
     "log"
     "net/http"
     "regexp"
@@ -11,6 +14,8 @@ import (
     "github.com/servomac/thumbgo/loader"
     "github.com/servomac/thumbgo/image"
 )
+
+
 
 var validPath = regexp.MustCompile("^/([0-9]+)x([0-9]+)/(.+)$")
 
@@ -39,20 +44,44 @@ func handler(resp http.ResponseWriter, r *http.Request) {
 
     // processing
     resizedImage, err := image.Resize(imageBody, options)
-    nbytes, err := resp.Write(resizedImage.Body)
+    nbytes, err := resp.Write(resizedImage.Body)    //improve TODO bufio?
+    fmt.Printf("%s (%s) as %dx%d [%d bytes]\n", url, resizedImage.Mimetype, width, height, nbytes)
     if err != nil {
         log.Printf("ERROR while serving %s (%v)\n", url, err)
         http.Error(resp, err.Error(), http.StatusInternalServerError)
         return
     }
 
+    resp.Header().Set("Content-Type", "image/"+resizedImage.Mimetype)
     resp.Header().Set("Content-Length", string(nbytes))
-    resp.Header().Set("Content-Type", "image")
+}
+
+
+type Config struct {
+    Addr string
+    Port int
+}
+
+func (c *Config) ReadConfig(path string) (err error) {
+    file, err := ioutil.ReadFile(path)
+    if err != nil {
+        log.Fatalf("ERROR with config file: %v\n", err)
+    }
+
+    if err = json.Unmarshal(file, c); err != nil {
+        log.Fatalf("ERROR parsing config file: %v\n", err)
+    }
+    return
 }
 
 
 func main() {
-    port := 8000
+    var configFile = flag.String("c", "/etc/thumbgo/config.json", "configuration file")
+    flag.Parse()
+
+    var cfg Config
+    cfg.ReadConfig(*configFile)
+    log.Printf("Starting Thumbgo. Listening on %s:%d", cfg.Addr, cfg.Port)
     http.HandleFunc("/", handler)
-    http.ListenAndServe(fmt.Sprintf("0.0.0.0:%d", port), nil)
+    http.ListenAndServe(fmt.Sprintf("%s:%d", cfg.Addr, cfg.Port), nil)
 }

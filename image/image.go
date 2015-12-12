@@ -12,14 +12,14 @@ type ImageOptions struct {
 
 type Image struct {
   Body      []byte
-  MimeType  string
+  Mimetype  string
 }
 
 
 func Resize(buf []byte, o ImageOptions) (out Image, err error) {
     imageType := bimg.DetermineImageTypeName(buf)
     if o.Width == 0 && o.Height == 0 {
-        return Image{Body: buf, MimeType: imageType}, nil
+        return Image{Body: buf, Mimetype: imageType}, nil
     }
 
     opts := bimg.Options{
@@ -34,5 +34,5 @@ func Resize(buf []byte, o ImageOptions) (out Image, err error) {
         return Image{}, err
     }
 
-    return Image{Body: buf, MimeType: imageType}, nil
+    return Image{Body: buf, Mimetype: imageType}, nil
 }
