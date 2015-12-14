@@ -4,7 +4,7 @@ A small on demand image resizing service written in Go.
 
 ## Installation
 
-### Build
+### Build with Go tools
 
 0. Install libvips and [bimg](https://github.com/h2non/bimg)
 
@@ -28,3 +28,17 @@ A small on demand image resizing service written in Go.
   ```
 
 4. Visit [localhost:8000/320x213/static.rappler.com/images/manny-pacquiao-training-20150222.jpg](http://localhost:8000/320x213/static.rappler.com/images/manny-pacquiao-training-20150222.jpg)
+
+### or build the docker image
+
+```
+git clone https://github.com/servomac/thumbgo.git
+cd thumbgo
+docker build -t thumbgo .
+docker run -d \
+    --name thumbgo \
+    --restart always \
+    -v `pwd`/config.json.sample:/etc/thumbgo/config.json \
+    -p 8000:8000 \
+    thumbgo
+```
